@@ -62,7 +62,7 @@ class MatchDNA:
             1.- Check if the Subject DNA path is set
             2.- Try to read the txt file
         return True: If all good
-        return False: If somwthing were wrong. Check the read permissions. Check is the file is corrupted 
+        return False: If something were wrong. Check the read permissions. Check is the file is corrupted 
         """
         #If Subject DNA is set
         if subjectDNA == None: return False
@@ -86,7 +86,7 @@ class MatchDNA:
     #Find Longest STR Match
     def findSTRFromSubjectDNA(self):
         """
-        Using longest_match predefine function
+        Using longest_match predefined function
         """
         try:
             for strseq in self.__dictionary:
@@ -140,12 +140,14 @@ class MatchDNA:
 
     #Print Data
     def printData(self):
+        print("Database: ")
         print(self.__database)
+        print("STR Sequences")
         print(self.__dictionary)
+        print("Maches")
         print(self.__matches)
 
-
-
+#END Class MatchDNA
 
 #Validate Argv
 def validateArgv(argv):
@@ -188,8 +190,6 @@ def main(argv):
 
     # TODO: Check database for matching profiles
     testing.findMatchInDatabase()
-
-    #testing.printData()
 
     return
 
