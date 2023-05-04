@@ -48,11 +48,11 @@ class MatchDNA:
             return True
         #Memory Error & OSError Exception family
         except (MemoryError, OSError) as e:
-            print("Memory Error or OS Error " + e)
+            print("Memory Error or OS Error ", e)
             return False
         #General Exception
         except Exception as e:
-            print("Unexpected Exception: " + e)
+            print("Unexpected Exception: ", e)
             return False
 
     #Load Subject DNA in Memory
@@ -76,11 +76,11 @@ class MatchDNA:
             return True
         #Memory Error & OSError Exception family
         except (MemoryError, OSError) as e:
-            print("Memory Error or OS Error " + e)
+            print("Memory Error or OS Error ", e)
             return False
         #General Exception
         except Exception as e:
-            print("Unexpected Exception: " + e)
+            print("Unexpected Exception: ", e)
             return False
 
     #Find Longest STR Match
@@ -94,11 +94,11 @@ class MatchDNA:
             return True
         #Memory Error
         except MemoryError as e:
-            print("Memory Error: " + e)
+            print("Memory Error: ", e)
             return False
         #General Exception
         except Exception as e:
-            print("Unexpected Exception: " + e)
+            print("Unexpected Exception: ", e)
             return False
 
 
@@ -132,10 +132,10 @@ class MatchDNA:
             if not match: print("No match")
             return True
         except MemoryError as e:
-            print("Memory Error " + e)
+            print("Memory Error ", e)
             return False
         except Exception as e:
-            print("Unexpected Exception: " + e)
+            print("Unexpected Exception: ", e)
             return False
 
     #Print Data
@@ -156,11 +156,11 @@ def validateArgv(argv):
         return "Usage: python dna.py data.csv sequence.txt"
     
     #Check if Database File exists 
-    if os.path.isfile(argv[0]) == False:
+    if os.path.isfile(argv[0]) ==  False:
         return "Database file not found"
     
     #Check if DNA sequence File exists
-    if os.path.isfile(argv[1] == False):
+    if os.path.isfile(argv[1]) == False:
         return "DNA sequence not found"
         
     return True
@@ -169,7 +169,6 @@ def validateArgv(argv):
 def main(argv):
 
     testing = MatchDNA()
-    argv = ["databases/small.csv", "sequences/1.txt"]
 
     # TODO: Check for command-line usage
     validation = validateArgv(argv)
