@@ -1,14 +1,9 @@
-import csv
 #Command Line Argvs
 import sys
-#Regular Expressions
-import re
 #Pandas for CSV reading
 import pandas as pd
 #OS Operations
 import os
-#Permutations
-import itertools
 
 class DNA:
 
@@ -31,14 +26,6 @@ class DNA:
         #Match
         self.__match = "No match"
 
-    #Init from Database STR Dictionary
-    def __initSTRdict(self):
-       # print(self.__database)
-        print(self.__database.head(10))
-        #for l in list(itertools.product(['A', 'C', 'G', 'T'],repeat=4)):
-        #    self.__dictionary[''.join(l)] = 0
-        #print(self.__dictionary)
-
     #Load Database in Memory
     def loadDatabase(self, databasePath):
         """
@@ -48,20 +35,30 @@ class DNA:
         return True: If all good
         return False: If somwthing were wrong. Check the read permissions. Check is the file is corrupted 
         """
+        if databasePath == None: return False
         self.__dbPath = databasePath
         try:
             #Try to read Database
             self.__database = pd.read_csv(self.__dbPath)
-            self.__initSTRdict()
+            print(self.__database)
+            #Read STR to build dictionary
+            for strseq in self.__database.columns[1:]: 
+               self.__dictionary[strseq] = 0
             #All good
             return True
-        #Catch General Exception
+        #Memory Error
+        except MemoryError as e:
+            print(e)
+        #OSError Exception family
+        except OSError as e:
+            print(e)
+        #General Exception
         except Exception as e:
             #Print Exception
-            print(e)
+            print("Unexpected Exception: " + e)
+            #print(sys.exc_info()[0])
             #An error has ocurred
             return False
-
     #Load Subject DNA in Memory
     def loadSubjectDNA(self, subjectDNA):
         """
@@ -72,44 +69,65 @@ class DNA:
         return False: If somwthing were wrong. Check the read permissions. Check is the file is corrupted 
         """
         #If Subject DNA is set
+        if subjectDNA == None: return False
         self.__sdnaPath = subjectDNA
         try:
             #Try open file using with open
             with open(self.__sdnaPath, "r") as file:
                 #Set Subject DNA
                 self.__subjectDNA = file.read()
-            print(self.__subjectDNA)
             #All good
             return True
-        #Catch General Exception
+        #MemoryError
+        except MemoryError as e:
+            print(e)
+        #OSError
+        except OSError as e:
+             print(e)
+        #General Exception
         except Exception as e:
             #Print Exception
-            print(e)
+            print("Unexpected Exception: " + e)
             #An error has ocurred
             return False
 
+    #findLongestMatch
+    def findLongestMatch(self):
+        """
+        Using python string function count,
+        allow to count the numbers of ocurrentces            of a  substring
+        """
+        for strseq in self.__dictionary:
+            self.__dictionary[strseq] = self.__subjectDNA.count(strseq)
+        print(self.__dictionary)
 
+#Validate Argv
+def validateArgv(argv):
+    #Check for Arguments
+    if len(argv) != 2 or argv[0][-4:].lower() != ".csv" or argv[1][-4:].lower() != ".txt":
+        return "Usage: python dna.py data.csv sequence.txt"
+    
+    #Check if Database File exists 
+    if os.path.isfile(argv[0]) == False:
+        return "Database file not found"
+    
+    #Check if DNA sequence File exists
+    if os.path.isfile(argv[1] == False):
+        return "DNA sequence not found"
+        
+    return True
 
 #Main Function
 def main(argv):
 
     testing = DNA()
+    argv = ["databases/large.csv", "sequences/5.txt"]
 
     # TODO: Check for command-line usage
-    #Check for Arguments
-    if len(argv) != 2 or argv[0][-4:].lower() != ".csv" or argv[1][-4:].lower() != ".txt":
-        print("Usage: python dna.py data.csv sequence.txt")
+    validation = validateArgv(argv)
+    if validation != True:
+        print(validation)
         return
-    
-    #Check Database File if exists 
-    if os.path.isfile(argv[0]) == False:
-        print("Database file not found")
-        return
-    
-    #Check DNA sequence File if exists
-    if os.path.isfile(argv[1] == False):
-        print("DNA sequence not found")
-        return 
 
     dbpath, sdnapath = argv[0], argv[1]
     
@@ -117,9 +135,10 @@ def main(argv):
     testing.loadDatabase(dbpath)
 
     # TODO: Read DNA sequence file into a variable
-   # testing.loadSubjectDNA(sdnapath)
+    testing.loadSubjectDNA(sdnapath)
 
     # TODO: Find longest match of each STR in DNA sequence
+    testing.findLongestMatch()
 
     # TODO: Check database for matching profiles
 
