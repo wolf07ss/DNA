@@ -5,7 +5,7 @@ import pandas as pd
 #OS Operations
 import os
 
-class DNA:
+class MatchDNA:
 
     def __init__(self):
         #Database path
@@ -23,8 +23,8 @@ class DNA:
         #STR Dictorary
         self.__dictionary = {}
 
-        #Match
-        self.__match = "No match"
+        #Matches
+        self.__matches = {}
 
     #Load Database in Memory
     def loadDatabase(self, databasePath):
@@ -40,25 +40,21 @@ class DNA:
         try:
             #Try to read Database
             self.__database = pd.read_csv(self.__dbPath)
-            print(self.__database)
+            #print(self.__database)
             #Read STR to build dictionary
             for strseq in self.__database.columns[1:]: 
                self.__dictionary[strseq] = 0
             #All good
             return True
-        #Memory Error
-        except MemoryError as e:
-            print(e)
-        #OSError Exception family
-        except OSError as e:
-            print(e)
+        #Memory Error & OSError Exception family
+        except (MemoryError, OSError) as e:
+            print("Memory Error or OS Error " + e)
+            return False
         #General Exception
         except Exception as e:
-            #Print Exception
             print("Unexpected Exception: " + e)
-            #print(sys.exc_info()[0])
-            #An error has ocurred
             return False
+
     #Load Subject DNA in Memory
     def loadSubjectDNA(self, subjectDNA):
         """
@@ -78,28 +74,78 @@ class DNA:
                 self.__subjectDNA = file.read()
             #All good
             return True
-        #MemoryError
-        except MemoryError as e:
-            print(e)
-        #OSError
-        except OSError as e:
-             print(e)
+        #Memory Error & OSError Exception family
+        except (MemoryError, OSError) as e:
+            print("Memory Error or OS Error " + e)
+            return False
         #General Exception
         except Exception as e:
-            #Print Exception
             print("Unexpected Exception: " + e)
-            #An error has ocurred
             return False
 
-    #findLongestMatch
-    def findLongestMatch(self):
+    #Find Longest STR Match
+    def findSTRFromSubjectDNA(self):
         """
-        Using python string function count,
-        allow to count the numbers of ocurrentces            of a  substring
+        Using longest_match predefine function
         """
-        for strseq in self.__dictionary:
-            self.__dictionary[strseq] = self.__subjectDNA.count(strseq)
+        try:
+            for strseq in self.__dictionary:
+                self.__dictionary[strseq] = longest_match(self.__subjectDNA, strseq)
+            return True
+        #Memory Error
+        except MemoryError as e:
+            print("Memory Error: " + e)
+            return False
+        #General Exception
+        except Exception as e:
+            print("Unexpected Exception: " + e)
+            return False
+
+
+    #Find Match In Database using Subject DNA
+    def findMatchInDatabase(self):
+        """
+        Find match in the database using the subject DNA
+        Iterate over the rows searching for a match
+        """
+        try:
+            #Iterate over the rows on database
+            for row in range(len(self.__database)):
+                #Iterate over the STR Dictionary
+                for strseq in self.__dictionary:
+                    #If Match in Database
+                    if self.__database.loc[row, strseq ] == self.__dictionary[strseq]:
+                        #Add subject to matches
+                        if self.__database.loc[row, "name"] not in self.__matches:
+                            self.__matches[self.__database.loc[row, "name"]] = 1
+                            continue
+                        #Increase match count for this subject
+                        self.__matches[self.__database.loc[row, "name"]] += 1
+            #Print Match percent
+            match = False
+            for subject in self.__matches:
+                #print(subject + " " + str(self.__matches[subject]*100/len(self.__dictionary)) + "%")
+                if self.__matches[subject] == len(self.__dictionary):
+                    print(subject)
+                    match = True
+            #If match not found
+            if not match: print("No match")
+            return True
+        except MemoryError as e:
+            print("Memory Error " + e)
+            return False
+        except Exception as e:
+            print("Unexpected Exception: " + e)
+            return False
+
+    #Print Data
+    def printData(self):
+        print(self.__database)
         print(self.__dictionary)
+        print(self.__matches)
+
+
+
 
 #Validate Argv
 def validateArgv(argv):
@@ -120,8 +166,8 @@ def validateArgv(argv):
 #Main Function
 def main(argv):
 
-    testing = DNA()
-    argv = ["databases/large.csv", "sequences/5.txt"]
+    testing = MatchDNA()
+    argv = ["databases/small.csv", "sequences/1.txt"]
 
     # TODO: Check for command-line usage
     validation = validateArgv(argv)
@@ -138,13 +184,16 @@ def main(argv):
     testing.loadSubjectDNA(sdnapath)
 
     # TODO: Find longest match of each STR in DNA sequence
-    testing.findLongestMatch()
+    testing.findSTRFromSubjectDNA()
 
     # TODO: Check database for matching profiles
+    testing.findMatchInDatabase()
+
+    #testing.printData()
 
     return
 
-#?????
+#Longest Match predefine fucntion
 def longest_match(sequence, subsequence):
     """Returns length of longest run of subsequence in sequence."""
 
